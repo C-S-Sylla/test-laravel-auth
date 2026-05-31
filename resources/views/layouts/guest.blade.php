@@ -1,30 +1,26 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
-
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
-            </div>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CYBER_GATEWAY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #050505; background-image: radial-gradient(#111827 1px, transparent 1px); background-size: 20px 20px; }
+        .cyber-panel { border: 1px solid #ec4899; box-shadow: 0 0 15px rgba(236, 72, 153, 0.4), inset 0 0 10px rgba(236, 72, 153, 0.2); }
+        .cyber-input { background: rgba(0, 0, 0, 0.8) !important; border: 1px solid #06b6d4 !important; color: #06b6d4 !important; }
+        .cyber-input:focus { box-shadow: 0 0 15px #06b6d4 !important; outline: none !important; }
+    </style>
+</head>
+<body class="font-mono text-cyan-400 flex items-center justify-center min-h-screen">
+    <div class="w-full sm:max-w-md p-8 bg-gray-950/90 rounded-2xl cyber-panel relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-pink-500 animate-pulse"></div>
+        <div class="flex justify-center mb-6">
+            <span class="text-xs bg-cyan-950 border border-cyan-500 px-3 py-1 tracking-widest text-cyan-400 font-bold uppercase animate-pulse">
+                RESTRICTED_ACCESS
+            </span>
         </div>
-    </body>
+        {{ $slot }}
+    </div>
+</body>
 </html>

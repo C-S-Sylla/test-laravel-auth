@@ -24,17 +24,33 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+public function update(Request $request)
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'alias' => ['nullable', 'string', 'max:100'],
+            'bio' => ['nullable', 'string'],
+            'mission' => ['required', 'in:heist,mainframe,grid'],
+            'avatar' => ['nullable', 'image', 'max:2048'], // Max 2 Mo
+        ]);
+
+        // Gestion de l'upload de l'avatar 📸
+        if ($request->hasFile('avatar')) {
+            // On sauvegarde l'image dans le dossier public
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $path;
         }
 
-        $request->user()->save();
+        $user->name = $request->name;
+        $user->alias = $request->alias;
+        $user->bio = $request->bio;
+        $user->mission = $request->mission;
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $user->save();
+
+        return redirect()->route('dashboard')->with('status', 'profile-updated');
     }
 
     /**
