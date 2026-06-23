@@ -1,0 +1,97 @@
+🎯 APPLICATION PRÊTE À UTILISER!
+
+═══════════════════════════════════════════════════════════════════
+
+✅ BACKEND (LARAVEL) EST EN COURS D'EXÉCUTION
+   → http://localhost:8000/api
+
+   Pour voir les logs du backend, regarde le terminal PHP actif.
+
+═══════════════════════════════════════════════════════════════════
+
+📱 POUR LANCER LE FRONTEND (REACT):
+
+Exécute ce fichier:
+   → run-frontend.bat
+
+Ou manuellement:
+   1. Ouvre un autre terminal PowerShell
+   2. Exécute: npm --prefix C:\Users\HP\Downloads\ttest\test-laravel-auth\frontend run dev
+
+═══════════════════════════════════════════════════════════════════
+
+🌐 ACCÈS À L'APPLICATION:
+
+Une fois le frontend lancé, ouvre:
+   → http://localhost:5173
+
+Puis:
+   1. Clique sur "Don't have an account? Sign up"
+   2. Crée un compte avec:
+      - Name: Ton nom
+      - Email: ton@email.com
+      - Password: Un mot de passe (min 6 caractères)
+   3. Clique "Sign up"
+   4. Tu es connecté! 🎉
+
+═══════════════════════════════════════════════════════════════════
+
+📝 CE QUE TU PEUX FAIRE:
+
+✅ Créer un compte
+✅ Te connecter
+✅ Voir ton profil
+✅ Modifier ton profile (name, email)
+✅ Supprimer ton compte
+✅ Accéder à la base de données (tout est sauvegardé!)
+
+═══════════════════════════════════════════════════════════════════
+
+🔧 SI LE PORT 5173 EST UTILISÉ:
+
+Modifie vite.config.js et change le port à 3000:
+
+   server: {
+     port: 3000,
+     proxy: {...}
+   }
+
+Puis relance le frontend.
+
+═══════════════════════════════════════════════════════════════════
+
+📊 STRUCTURE DE L'APPLICATION:
+
+LOGIN/REGISTER:
+   ├── frontend/src/pages/Login.jsx
+   └── frontend/src/pages/Register.jsx
+      → Appelle backend: POST /api/auth/login ou /api/auth/register
+      → Stocke le token dans localStorage
+
+DASHBOARD (Page principale):
+   ├── frontend/src/pages/Dashboard.jsx
+      → Appelle backend: GET /api/auth/me
+      → Affiche les infos de l'utilisateur
+
+PROFILE (Modifier profil):
+   ├── frontend/src/pages/Profile.jsx
+      → Appelle backend: PUT /api/auth/profile (modification)
+      → Appelle backend: DELETE /api/auth/profile (suppression)
+
+DATABASE:
+   ├── backend/database/database.sqlite
+      → Tous les utilisateurs sont sauvegardés ici
+      → Table: users
+
+═══════════════════════════════════════════════════════════════════
+
+✨ TOUT FONCTIONNE AVEC:
+
+Frontend:  React 18 + Vite + React Router + Tailwind CSS
+Backend:   Laravel 13 + Sanctum (API tokens)
+Database:  SQLite (sqlite database.sqlite)
+API:       6 endpoints REST
+
+═══════════════════════════════════════════════════════════════════
+
+C'est bon! Lance le frontend et teste! 🚀
