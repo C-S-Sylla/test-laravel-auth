@@ -1,0 +1,17 @@
+# Étape 1 : Build de l'application
+FROM node:20-alpine as build-stage
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+# On s'assure que Vite utilise l'URL de l'API Docker
+ENV VITE_API_URL=http://localhost:8000/api
+RUN npm run build
+
+# Étape 2 : Serveur Nginx pour servir les fichiers statiques
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+# Configuration Nginx pour gérer le routing React (SPA)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

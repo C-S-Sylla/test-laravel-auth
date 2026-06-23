@@ -1,159 +1,132 @@
-import React, { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
-import { authAPI } from '../api'
+import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../api';
 
 function Profile() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
-  const [isEditing, setIsEditing] = useState(false)
-  const [name, setName] = useState(user?.name || '')
-  const [email, setEmail] = useState(user?.email || '')
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(false)
+  // setUser doit être récupéré ici
+  const { user, setUser } = useAuth();
+  const [alias, setAlias] = useState('');
+  const [bio, setBio] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const handleUpdate = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setSuccess(false)
+  // Remplit les cases quand l'utilisateur arrive
+  useEffect(() => {
+    if (user) {
+      setAlias(user.alias || '');
+      setBio(user.bio || '');
+    }
+  }, [user]);
 
+  // FONCTION AVATAR
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    setUploading(true);
     try {
-      await authAPI.updateProfile({ name, email })
-      setSuccess(true)
-      setIsEditing(false)
+      const response = await authAPI.updateAvatar(formData);
+      console.log("Réponse Avatar:", response.data);
+      
+      // On met à jour l'utilisateur globalement
+      setUser(response.data.user); 
+      alert("SYSTÈME : AVATAR SYNCHRONISÉ");
     } catch (err) {
-      setError(err.response?.data?.message || 'Update failed')
+      console.error("Erreur Avatar:", err);
+      alert("ERREUR : ÉCHEC DU TRANSFERT");
     } finally {
-      setLoading(false)
+      setUploading(false);
     }
-  }
+  };
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      try {
-        await authAPI.deleteAccount()
-        await logout()
-        navigate('/login')
-      } catch (err) {
-        setError(err.response?.data?.message || 'Delete failed')
-      }
-    }
+  // FONCTION SYNCHRONISER (Alias et Bio)
+  const handleSyncIdentity = async () => {
+  setLoading(true);
+  try {
+    const response = await authAPI.updateProfile({
+      alias: alias,
+      bio: bio
+    });
+
+    // CECI VA AFFICHER UN TABLEAU DANS TA CONSOLE F12
+    console.log("%c [SYSTEM_UPDATE] : Données reçues du serveur :", "color: #00f2ff; font-weight: bold;");
+    console.table(response.data.user); 
+
+    setUser(response.data.user);
+    alert("IDENTITÉ SYNCHRONISÉE DANS LE MAINFRAME");
+  } catch (err) {
+    console.error("ERREUR_SYNCHRO :", err);
+    alert("ERREUR DE SYNCHRONISATION");
+  } finally {
+    setLoading(false);
   }
+};
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Profile Information
-          </h3>
-
-          {error && (
-            <div className="mt-4 rounded-md bg-red-50 p-4">
-              <div className="text-sm font-medium text-red-800">{error}</div>
-            </div>
-          )}
-
-          {success && (
-            <div className="mt-4 rounded-md bg-green-50 p-4">
-              <div className="text-sm font-medium text-green-800">Profile updated successfully</div>
-            </div>
-          )}
-
-          {isEditing ? (
-            <form onSubmit={handleUpdate} className="mt-5 space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
-                />
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="mt-5 border-t border-gray-200">
-              <dl className="divide-y divide-gray-200">
-                <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
-                  <dt className="text-sm font-medium text-gray-500">Name</dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {user?.name}
-                  </dd>
-                </div>
-                <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
-                  <dt className="text-sm font-medium text-gray-500">Email</dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {user?.email}
-                  </dd>
-                </div>
-              </dl>
-              <div className="mt-4">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Edit Profile
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Danger Zone
-          </h3>
-          <div className="mt-2 max-w-xl text-sm text-gray-500">
-            Once you delete your account, there is no going back. Please be certain.
+    <div className="min-h-screen bg-cyber-black text-cyber-blue font-mono p-4">
+      {/* Header Avatar */}
+      <div className="max-w-4xl mx-auto border border-cyber-blue p-6 rounded-lg shadow-neon-blue bg-cyber-dark mb-8">
+        <div className="flex items-center gap-6">
+          <div className="w-24 h-24 rounded-full border-2 border-cyber-blue shadow-neon-blue overflow-hidden bg-black">
+             <img 
+               src={user?.avatar ? `http://localhost:8000/storage/${user.avatar}` : "https://ui-avatars.com/api/?name=Agent"} 
+               className="w-full h-full object-cover"
+               alt="Avatar" 
+             />
           </div>
-          <div className="mt-5">
-            <button
-              onClick={handleDelete}
-              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Delete Account
+          <div>
+            <h1 className="text-3xl font-bold text-cyber-pink tracking-widest uppercase italic">Agent: {user?.name}</h1>
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+            <button onClick={() => fileInputRef.current.click()} className="text-[10px] border border-cyber-blue px-2 py-1 mt-2 hover:bg-cyber-blue hover:text-black uppercase italic">
+              {uploading ? 'TRANSFERT...' : '> CHANGER_AVATAR'}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Formulaire */}
+      <div className="max-w-4xl mx-auto border border-cyber-pink/30 p-8 bg-cyber-dark/50 shadow-inner">
+        <h2 className="text-cyber-blue mb-8 border-l-4 border-cyber-pink pl-4 uppercase italic">// INTERFACE_NEURONALE</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col">
+            <label className="text-[10px] text-gray-500 uppercase mb-1">Nom de citoyen</label>
+            <input className="bg-black border border-cyber-pink/20 p-3 text-gray-600 outline-none" value={user?.name || ''} readOnly />
+          </div>
+          
+          <div className="flex flex-col">
+            <label className="text-[10px] text-cyber-blue uppercase mb-1 italic">Nom de code (Alias)</label>
+            <input 
+              className="bg-black border border-cyber-blue/50 p-3 text-cyber-blue focus:shadow-neon-blue outline-none"
+              value={alias} // Lié à la variable d'état
+              onChange={(e) => setAlias(e.target.value)} // Met à jour la variable quand tu tapes
+            />
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <label className="text-[10px] text-cyber-blue uppercase mb-1 italic">Biographie encryptée</label>
+          <textarea 
+            className="w-full bg-black border border-cyber-blue/50 p-3 text-cyber-blue h-32 focus:shadow-neon-blue outline-none"
+            value={bio} // Lié à la variable d'état
+            onChange={(e) => setBio(e.target.value)}
+          />
+        </div>
+
+        <button 
+          onClick={handleSyncIdentity}
+          disabled={loading}
+          className="mt-10 w-full md:w-auto bg-cyber-pink text-black font-black py-3 px-10 hover:bg-cyber-blue transition-all uppercase tracking-widest shadow-neon-pink hover:shadow-neon-blue"
+        >
+          {loading ? 'SYNCHRONISATION...' : 'SYNCHRONISER L\'IDENTITÉ'}
+        </button>
+      </div>
     </div>
-  )
+  );
 }
 
-export default Profile
+export default Profile;

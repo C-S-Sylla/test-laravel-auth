@@ -20,8 +20,6 @@ export function AuthProvider({ children }) {
 
       try {
         const response = await authAPI.me()
-        // Sur la route /me, Laravel peut renvoyer soit l'utilisateur direct, soit {user: ...}
-        // On vérifie les deux cas par sécurité
         const userData = response.data.user || response.data
         setUser(userData)
       } catch (err) {
@@ -42,8 +40,6 @@ export function AuthProvider({ children }) {
     setError(null)
     try {
       const response = await authAPI.login(email, password)
-      
-      // CORRECTION : Ton backend renvoie { user: {...}, token: "..." }
       const userData = response.data.user
       const token = response.data.token
 
@@ -66,8 +62,6 @@ export function AuthProvider({ children }) {
     setError(null)
     try {
       const response = await authAPI.register(data)
-      
-      // On utilise la même logique que pour le login
       const userData = response.data.user
       const token = response.data.token
 
@@ -91,14 +85,14 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error('Erreur lors de la déconnexion:', err)
     } finally {
-      // On nettoie toujours le client même si l'appel API échoue
       setUser(null)
       localStorage.removeItem('token')
     }
   }
 
+  // CORRECTION ICI : Ajout de 'setUser' dans l'objet 'value'
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, register, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loading, error, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )

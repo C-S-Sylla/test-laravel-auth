@@ -7,132 +7,106 @@ function Register() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+  
+  // ÉTAPE 1 : Variables pour l'erreur et le chargement
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+
   const { register } = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setError(null)
+    setError(null) // On vide l'ancienne erreur
 
+    // ÉTAPE 2 : Sécurité mot de passe identique
     if (password !== passwordConfirmation) {
-      setError('Passwords do not match')
-      setLoading(false)
-      return
+      setError("LES CLÉS D'ACCÈS NE CORRESPONDENT PAS");
+      setLoading(false);
+      return;
     }
 
     try {
-      await register({
-        name,
-        email,
-        password,
-        password_confirmation: passwordConfirmation,
-      })
+      await register({ name, email, password, password_confirmation: passwordConfirmation })
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed')
+      console.error(err)
+      // ÉTAPE 3 : Capturer l'erreur du serveur (ex: email déjà utilisé)
+      setError(err.response?.data?.message || "ÉCHEC DE LA CRÉATION DE L'AGENT");
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+    <div className="min-h-screen flex items-center justify-center bg-cyber-black font-mono p-4">
+      <div className="max-w-md w-full bg-cyber-dark border border-cyber-pink p-8 rounded-sm shadow-neon-pink">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-black text-cyber-blue tracking-tighter uppercase italic">
+            // NOUVEL_AGENT
           </h2>
+          <div className="h-1 w-20 bg-cyber-pink mx-auto mt-2"></div>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm font-medium text-red-800">{error}</div>
-            </div>
-          )}
 
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="name" className="sr-only">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password_confirmation" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="password_confirmation"
-                name="password_confirmation"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-                value={passwordConfirmation}
-                onChange={(e) => setPasswordConfirmation(e.target.value)}
-              />
-            </div>
+        {/* ÉTAPE 4 : BLOC D'AFFICHAGE DE L'ALERTE */}
+        {error && (
+          <div className="bg-cyber-pink/15 border border-cyber-pink p-3 mb-6 animate-pulse">
+            <p className="text-cyber-pink text-[11px] font-black uppercase tracking-widest text-center">
+              [!] ERREUR SYSTÈME : {error} [!]
+            </p>
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="text-[10px] text-cyber-pink uppercase mb-1 block">Identité (Nom)</label>
+            <input 
+              type="text" required
+              className="w-full bg-black border border-cyber-pink/50 p-2 text-cyber-pink focus:outline-none focus:border-cyber-pink" 
+              value={name} onChange={(e) => setName(e.target.value)} 
+            />
           </div>
 
           <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {loading ? 'Creating account...' : 'Sign up'}
-            </button>
+            <label className="text-[10px] text-cyber-pink uppercase mb-1 block">Canal Email</label>
+            <input 
+              type="email" required
+              className="w-full bg-black border border-cyber-pink/50 p-2 text-cyber-pink focus:outline-none focus:border-cyber-pink" 
+              value={email} onChange={(e) => setEmail(e.target.value)} 
+            />
           </div>
 
-          <div className="text-center">
-            <Link to="/login" className="text-indigo-600 hover:text-indigo-500">
-              Already have an account? Sign in
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[10px] text-cyber-pink uppercase mb-1 block">Clé d'accès</label>
+              <input 
+                type="password" required
+                className="w-full bg-black border border-cyber-pink/50 p-2 text-cyber-pink focus:outline-none focus:border-cyber-pink" 
+                value={password} onChange={(e) => setPassword(e.target.value)} 
+              />
+            </div>
+            <div>
+              <label className="text-[10px] text-cyber-pink uppercase mb-1 block">Confirmation</label>
+              <input 
+                type="password" required
+                className="w-full bg-black border border-cyber-pink/50 p-2 text-cyber-pink focus:outline-none focus:border-cyber-pink" 
+                value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} 
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-cyber-pink text-black font-black py-3 mt-4 uppercase tracking-widest hover:bg-cyber-blue transition-all shadow-neon-pink disabled:opacity-50"
+          >
+            {loading ? 'INSCRIPTION EN COURS...' : "Générer l'identité"}
+          </button>
+
+          <div className="text-center mt-4">
+            <Link to="/login" className="text-[10px] text-gray-500 hover:text-cyber-blue uppercase underline">
+              Déjà identifié ? Accéder au terminal
             </Link>
           </div>
         </form>
@@ -140,5 +114,4 @@ function Register() {
     </div>
   )
 }
-
 export default Register

@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  background-color: #020205; /* Ton noir cyber */
+  color: #00f2ff; /* Ton bleu cyber */
+}
+
+body {
+  margin: 0;
+  background-color: #020205;
+}

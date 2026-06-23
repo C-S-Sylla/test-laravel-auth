@@ -4,10 +4,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: false, // <--- METS CETTE LIGNE À FALSE MAINTENANT
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
-    'Content-Type': 'application/json',
   },
 })
 
@@ -39,6 +38,7 @@ export const authAPI = {
   me: () => api.get('/auth/me'),
   updateProfile: (data) => api.put('/auth/profile', data),
   deleteAccount: () => api.delete('/auth/profile'),
+  updateAvatar: (formData) => api.post('/auth/avatar', formData),
 }
 
 export default api
